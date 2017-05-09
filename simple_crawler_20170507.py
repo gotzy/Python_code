@@ -12,7 +12,7 @@ import lxml.html
 
 #前半：　最初に指定したページのURL以下のリンク先URLを取得する。
 
-#　指定ページ
+#　指定ページ(以下は一例)
 domain01 = 'http://www.yahoo.co.jp/'
 
 
