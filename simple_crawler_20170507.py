@@ -6,7 +6,6 @@ Created on Sun May  7 15:04:56 2017
 後半：　そのリンク先URLのHTMLデータを取得する。
 """
 
-import re
 import requests
 import lxml.html
 
