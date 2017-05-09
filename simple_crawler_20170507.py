@@ -67,8 +67,11 @@ ls_p.sort()
 #ls_all のページを回って、HTMLデータを取ってくる。
 ls_pages = list()
 for x in ls_all:
-    r = requests.get(x)    
-    ls_pages.append(r.text)
+    try:
+        r = requests.get(x)    
+        ls_pages.append(r.text)
+    except:
+        ls_pages.append("ERROR!")
 
 ls_pages02=list(set(ls_pages))
 ls_pages02.sort()
