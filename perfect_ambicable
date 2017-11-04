@@ -2,7 +2,6 @@
 #This prg gets perfect number and ambicable numbers.
 import numpy as np
 nnn=int(input("Input the max number: "))
-ls01=list()
 
 def func01(a,b):
     dd = a//b
@@ -13,6 +12,7 @@ def func01(a,b):
 ###########################################################
 print("-----------------------")
 ## perfect number
+ls01=list()
 for N in range(1,nnn+1):    
     a = np.array([N for _ in range(N-1)])    
     b = np.array([i+1 for i in range(N-1)])
