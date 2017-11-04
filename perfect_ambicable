@@ -3,7 +3,6 @@
 import numpy as np
 nnn=int(input("Input the max number: "))
 ls01=list()
-ls01bb=list()
 
 def func01(a,b):
     dd = a//b
