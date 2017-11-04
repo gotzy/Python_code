@@ -1,0 +1,35 @@
+# -*- coding: utf-8 -*-
+#This prg gets perfect number and ambicable numbers.
+import numpy as np
+nnn=int(input("Input the max number: "))
+ls01=list()
+ls01bb=list()
+
+def func01(a,b):
+    dd = a//b
+    ee = a%b
+    ff = [(i+1) if ee[i]==0 else 0 for i,e in enumerate(list(dd)) ]
+    g = np.sum(ff)    
+    return g    
+###########################################################
+print("-----------------------")
+## perfect number
+for N in range(1,nnn+1):    
+    a = np.array([N for _ in range(N-1)])    
+    b = np.array([i+1 for i in range(N-1)])
+    g=func01(a,b)    
+    if g==N:
+        print("perfect number:",N)
+        ls01bb.append(g)
+    ls01.append(g)
+###########################################################
+print("-----------------------")
+## amicable numbers
+ls02=list()
+for i,e in enumerate(ls01):
+    try:
+        if i+1==ls01[int(e)-1] and i+1<int(e):
+            ls02.append((i+1,int(e)))
+            print("ambicable numbers:",i+1,int(e))
+    except:
+        pass
