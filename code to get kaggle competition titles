@@ -1,0 +1,66 @@
+#背景などは、 http://longtweets.hatenablog.com/entry/2018/09/24/041757
+
+from selenium import webdriver
+from time import sleep
+import datetime
+
+try:
+    yn01=input("テキスト抽出だけでなく、pdf印刷もしますか？ (y or n) : ")
+except:
+    sleep_time=0
+if yn01=='y':
+    sleep_time=5
+else:
+    sleep_time=0
+    
+
+t1 = datetime.datetime.now()
+date_time01='{0:04d}'.format(t1.year)+'{0:02d}'.format(t1.month)+'{0:02d}'.format(t1.day)+"_"+'{0:02d}'.format(t1.hour)+'{0:02d}'.format(t1.minute)+'{0:02d}'.format(t1.second)
+
+sleep(5)
+
+driver = webdriver.Chrome() 
+
+driver.set_window_size(600, 700)  
+
+driver.get('https://www.kaggle.com/competitions')
+sleep(10)
+
+driver.set_window_position(100,50)
+
+html01=driver.page_source
+while 1:
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    sleep(15) #この数値が小さすぎると、２行下の判定で誤判定が起こり、最後までスクロールできない。
+    html02=driver.page_source
+    if html01!=html02:
+        html01=html02
+    else:
+        break
+
+#ディレクトリ名やファイル名は適宜変更してください。
+with open("/Users/username/kaggle_competition_titles_"+date_time01+".txt","w") as f:
+    cnt01=0
+    error_cnt=0
+    while 1:
+        try:
+            title01=driver.find_element_by_xpath('/html/body/div[1]/div[2]/div/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div['+str(cnt01)+']/div/div/div[1]/a').text
+            print(cnt01-1,": ",title01)
+            print('{0:04d}'.format(cnt01-1),": ",title01,file=f)
+        except:
+            error_cnt+=1
+            if error_cnt > 30:
+                break
+        cnt01+=1        
+        
+if sleep_time >=1:
+    print("\npdfを選んで、印刷（pdf保存）してください。印刷後、ブラウザを閉じます。\n")
+    driver.execute_script('window.print();')
+sleep(sleep_time)
+
+driver.close()
+
+t2 = datetime.datetime.now()
+print(t2-t1)
+
+sleep(2)
