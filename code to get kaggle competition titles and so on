@@ -40,11 +40,12 @@ while 1:
     else:
         break
 
-with open("/Users/gotzy-mac/kaggle_dir/kaggle_competition_html_source_"+date_time01+".txt","w") as f:
+#change the dir name as you like.
+with open("/Users/username/kaggle_competition_html_source_"+date_time01+".txt","w") as f:
     f.write(html01)
 
 common_path="/html/body/div[1]/div[2]/div/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div["
-with open("/Users/gotzy-mac/kaggle_dir/kaggle_competition_title_"+date_time01+".txt","w") as f:
+with open("/Users/username/kaggle_competition_title_"+date_time01+".txt","w") as f:
     cnt01=0
     error_cnt=0
     ls_elements=[]
@@ -85,7 +86,7 @@ ls_index=list(range(1,1+df_matome2.shape[0]))
 ls_index.reverse()
 ls_index=[ '{0:04d}'.format(c) for c in ls_index]
 df_matome2["number"]=ls_index
-df_matome2.to_csv("/Users/gotzy-mac/kaggle_dir/kaggle_competition_data_"+date_time01+".csv",index=None)
+df_matome2.to_csv("/Users/username/kaggle_competition_data_"+date_time01+".csv",index=None)
 
 
 if sleep_time >=1:
