@@ -1,0 +1,103 @@
+from selenium import webdriver
+from time import sleep
+from pandas import DataFrame as DF
+import os
+import datetime
+import pandas as pd
+
+try:
+    sleep_time=input("テキスト抽出だけでなく、pdf印刷もしますか？ (y or n) : ")
+except:
+    sleep_time=0
+if sleep_time=='y':
+    sleep_time=5
+else:
+    sleep_time=0
+    
+
+t1 = datetime.datetime.now()
+date_time01='{0:04d}'.format(t1.year)+'{0:02d}'.format(t1.month)+'{0:02d}'.format(t1.day)+"_"+'{0:02d}'.format(t1.hour)+'{0:02d}'.format(t1.minute)+'{0:02d}'.format(t1.second)
+
+sleep(5)
+
+driver = webdriver.Chrome() 
+
+driver.set_window_size(600, 700)  
+driver.get('https://www.kaggle.com/competitions')
+sleep(10)
+#カレントウインドウのポジション(左上隅の座標)をX座標:200,Y座標:300に設定
+driver.set_window_position(100,50)
+
+
+# javascriptを実行してページの最下部へ移動
+html01=driver.page_source
+while 1:
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    sleep(15)
+    html02=driver.page_source
+    if html01!=html02:
+        html01=html02
+    else:
+        break
+
+with open("/Users/gotzy-mac/kaggle_dir/kaggle_competition_html_source_"+date_time01+".txt","w") as f:
+    f.write(html01)
+
+common_path="/html/body/div[1]/div[2]/div/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div["
+with open("/Users/gotzy-mac/kaggle_dir/kaggle_competition_title_"+date_time01+".txt","w") as f:
+    cnt01=0
+    error_cnt=0
+    ls_elements=[]
+    while 1:
+        aa01='';aa02='';aa03='';aa04='';aa05='';aa06='';
+        ls_components=[]
+        try:
+            aa01=driver.find_element_by_xpath(common_path+str(cnt01)+']/div/div/div[1]/a').text
+            aa02=driver.find_element_by_xpath(common_path+str(cnt01)+']/div/div/div[1]/p').text
+            aa03=driver.find_element_by_xpath(common_path+str(cnt01)+']/div/div/div[1]/div/span[1]').text
+            aa04=driver.find_element_by_xpath(common_path+str(cnt01)+']/div/div/div[1]/div/span[3]').text
+            aa05=driver.find_element_by_css_selector('body > div.site-layout > div.site-layout__main-content > div > div > div.view-competition-list__wrapper > div > div.content-box__tabbed > div.content-box.content-box__tabbed-content > div.content-box__content-section > div > div > div:nth-child('+str(cnt01)+') > div > div > div.CompetitionDetails-gSnCob.gestYD > p').text.replace(",","")#.replace("$","")
+            aa06=driver.find_element_by_css_selector('body > div.site-layout > div.site-layout__main-content > div > div > div.view-competition-list__wrapper > div > div.content-box__tabbed > div.content-box.content-box__tabbed-content > div.content-box__content-section > div > div > div:nth-child('+str(cnt01)+') > div > div > div.CompetitionDetails-gSnCob.gestYD > span').text.replace(" teams","").replace(",","")
+            print(cnt01-1,": ",aa01)
+            print('{0:04d}'.format(cnt01-1),": ",aa01,file=f)
+        except:
+            error_cnt+=1
+            if error_cnt > 30:
+                break
+        error_cnt02=0
+        iii=0
+        while 1:
+            try:
+                ls_components.append(driver.find_element_by_xpath(common_path+str(cnt01)+']/div/div/div[1]/div/span[4]/span['+str(iii)+']/a').text)
+            except:
+                error_cnt02+=1
+                if error_cnt02 > 10:
+                    break
+            iii+=1
+        if aa01!='':
+            ls_elements.append([aa01,aa02,aa03,aa04,aa05,aa06,ls_components])
+        cnt01+=1        
+        
+
+df_matome=pd.DataFrame(ls_elements,columns=["title","description","category","deadline","prize_money","num_of_teams","tag"])
+df_matome2=pd.DataFrame(df_matome,columns=["number","title","description","category","deadline","prize_money","num_of_teams","tag"])
+ls_index=list(range(1,1+df_matome2.shape[0]))
+ls_index.reverse()
+ls_index=[ '{0:04d}'.format(c) for c in ls_index]
+df_matome2["number"]=ls_index
+df_matome2.to_csv("/Users/gotzy-mac/kaggle_dir/kaggle_competition_data_"+date_time01+".csv",index=None)
+
+
+if sleep_time >=1:
+    print("\npdfを選んで、印刷（pdf保存）してください。印刷後、ブラウザを閉じます。\n")
+    driver.execute_script('window.print();')
+sleep(sleep_time)
+
+
+driver.close()
+
+
+t2 = datetime.datetime.now()
+print(t2-t1)
+
+sleep(2)
