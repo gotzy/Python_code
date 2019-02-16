@@ -1,0 +1,59 @@
+"""
+以下の条件でのコードの書き方をまとめておく。
+データがアヤメなので、あまりありがたみを感じないけど。
+・ 二値分類
+・ 不均衡データ
+・ Scikit-Learn like なXGBoost記法
+・ GridSearchCV
+
+＜参考ページ＞
+scale_pos_weight: https://xgboost.readthedocs.io/en/latest/parameter.html
+parameters: https://xgboost.readthedocs.io/en/latest/parameter.html
+"""
+
+import numpy as np, pandas as pd
+from sklearn.datasets import load_iris
+from xgboost import XGBClassifier
+from sklearn import metrics
+from sklearn.metrics import confusion_matrix
+
+iris = load_iris()
+
+#二値で、かつ、不均衡データにするための処理
+X=iris.data[:90,:]
+y=iris.target[:90]
+
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split( X, y, test_size=0.3, random_state=0)
+
+from sklearn.model_selection import GridSearchCV
+
+gsc = GridSearchCV(
+    #estimator=XGBClassifier(scale_pos_weight=1),
+    estimator=XGBClassifier(scale_pos_weight= (len(y_train)-sum(y_train)) / sum(y_train) ),
+    param_grid={
+        "max_depth":[3,6,10],
+        "subsample":[0.5,0.8,1],
+        "colsample_bytree":[0.5,0.8,1],
+        "learning_rate":[0.01,0.1,0.3,0.5]
+    },
+    cv=3,n_jobs=5
+)
+grid_result = gsc.fit(X_train, y_train)
+
+print("Best parameters : %s" % grid_result.best_params_)
+
+pred01=gsc.predict(X_test)
+
+
+print(confusion_matrix(y_test,pred01))
+
+df01=pd.DataFrame({"true":y_test,"pred":pred01,"count":list(range(len(pred01)))})
+df01_gb=df01.groupby(["true","pred"],as_index=False)["count"].count()
+print(df01_gb)
+
+fpr, tpr, thresholds = metrics.roc_curve(y_test, pred01, pos_label=1)
+print(metrics.auc(fpr, tpr))
+
+
